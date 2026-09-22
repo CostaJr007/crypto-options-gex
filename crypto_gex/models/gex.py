@@ -53,6 +53,13 @@ class CryptoGammaExposureEngine:
         - 'implied_vol': float (annualized)
         - 'call_oi': float (Call Open Interest in contracts/coins)
         - 'put_oi': float (Put Open Interest in contracts/coins)
+
+        Zero-gamma flip semantics: ``zero_gamma_level`` is the strike where the
+        *cumulative* net GEX (strikes sorted ascending, ``cumsum(net_gex)``)
+        crosses zero, linearly interpolated between the two strikes bracketing
+        the crossing. This is the dealer-hedging flip level (where aggregate
+        positioning switches long/short gamma), NOT the first sign change of
+        any single-strike net GEX.
         """
         required = {"strike", "time_to_maturity", "implied_vol", "call_oi", "put_oi"}
         missing = required - set(df_chain.columns)
@@ -95,18 +102,19 @@ class CryptoGammaExposureEngine:
         call_wall = max(strike_rows, key=lambda x: x.call_gex).strike if strike_rows else spot
         put_wall = min(strike_rows, key=lambda x: x.put_gex).strike if strike_rows else spot
 
-        # Zero Gamma Flip Level
+        # Zero Gamma Flip Level (CUMULATIVE net GEX crossing, interpolated).
         zero_gamma = None
+        cum_gex = np.cumsum(np.array([s.net_gex for s in strike_rows], dtype=float))
         for i in range(len(strike_rows) - 1):
-            s1 = strike_rows[i]
-            s2 = strike_rows[i + 1]
-            if (s1.net_gex <= 0 and s2.net_gex >= 0) or (s1.net_gex >= 0 and s2.net_gex <= 0):
-                denom = (s2.net_gex - s1.net_gex)
+            c1 = float(cum_gex[i])
+            c2 = float(cum_gex[i + 1])
+            if (c1 <= 0 and c2 >= 0) or (c1 >= 0 and c2 <= 0):
+                denom = (c2 - c1)
                 if abs(denom) > 1e-9:
-                    frac = abs(s1.net_gex) / abs(denom)
-                    zero_gamma = s1.strike + frac * (s2.strike - s1.strike)
+                    frac = abs(c1) / abs(denom)
+                    zero_gamma = strike_rows[i].strike + frac * (strike_rows[i + 1].strike - strike_rows[i].strike)
                 else:
-                    zero_gamma = s1.strike
+                    zero_gamma = strike_rows[i].strike
                 break
 
         regime = "Long Gamma (Mean-Reverting / Volatility Dampened)" if total_net_gex >= 0 else "Short Gamma (Trend-Chasing / Volatility Amplified)"

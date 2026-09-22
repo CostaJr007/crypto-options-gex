@@ -20,6 +20,7 @@ class ImpliedVolatilitySolver:
         K: float,
         T: float,
         r: float = 0.04,
+        q: float = 0.0,
         initial_guess: float = 0.50,
         max_iterations: int = 100,
         tolerance: float = 1e-6,
@@ -31,8 +32,9 @@ class ImpliedVolatilitySolver:
 
         is_call = (flag.lower() == "call")
         discount_r = math.exp(-r * T)
+        discount_q = math.exp(-q * T)
 
-        intrinsic = max(0.0, (S - K * discount_r) if is_call else (K * discount_r - S))
+        intrinsic = max(0.0, (S * discount_q - K * discount_r) if is_call else (K * discount_r - S * discount_q))
         if market_price < intrinsic - tolerance:
             raise ValueError(
                 f"Option price ({market_price}) is below intrinsic value ({intrinsic:.4f}). Arbitrage violation."
@@ -42,7 +44,7 @@ class ImpliedVolatilitySolver:
         sigma = max(0.01, initial_guess)
         for _ in range(max_iterations):
             try:
-                greeks = CryptoGreeksEngine.greeks(flag, S, K, T, r, sigma)
+                greeks = CryptoGreeksEngine.greeks(flag, S, K, T, r, sigma, q)
                 diff = greeks.price - market_price
 
                 if abs(diff) < tolerance:
@@ -60,7 +62,7 @@ class ImpliedVolatilitySolver:
 
         # 2. Brent fallback
         def objective(sig: float) -> float:
-            return CryptoGreeksEngine.price(flag, S, K, T, r, sig) - market_price
+            return CryptoGreeksEngine.price(flag, S, K, T, r, sig, q) - market_price
 
         try:
             low_sig, high_sig = 0.0001, 20.0

@@ -8,7 +8,7 @@
 
 **Quantitative Crypto Options Analytics, Market Maker Gamma Exposure (GEX), and Volatility Surface Engine for BTC & ETH.**
 
-This repository modernizes institutional crypto options trading models into a production-grade Python engine for digital asset derivatives:
+This repository modernizes legacy crypto options workbooks (`excel_legacy/crypto_options_gex_legacy.xlsm`) into a research-grade Python engine for digital asset derivatives:
 - **Net Dealer Gamma Exposure (GEX)**: Track where market makers must hedge spot to remain delta-neutral.
 - **Key Market Levels**: Automatic detection of the **Call Wall** (Major Resistance), **Put Wall** (Major Support), and **Zero Gamma Flip Level** (Regime shift).
 - **24/7 Continuous Pricing**: Black-Scholes-Merton engine adapted for nonstop cryptocurrency trading (365 calendar days).
@@ -74,7 +74,7 @@ crypto-gex greeks --flag call --spot 65000 --strike 68000 --days 14 --vol 0.55
 # Analyze volatility smile and 25-delta risk reversal
 crypto-gex smile --spot 65000
 
-# Start FastAPI microservice
+# Start FastAPI service
 crypto-gex serve --port 8000
 ```
 

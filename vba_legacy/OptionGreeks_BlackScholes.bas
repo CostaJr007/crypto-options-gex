@@ -26,25 +26,25 @@ Function PutOption(UnderlyingPrice, ExercisePrice, Time, Interest, Volatility, D
 PutOption = ExercisePrice * Exp(-Interest * Time) * Application.NormSDist(-dTwo(UnderlyingPrice, ExercisePrice, Time, Interest, Volatility, Dividend)) - Exp(-Dividend * Time) * UnderlyingPrice * Application.NormSDist(-dOne(UnderlyingPrice, ExercisePrice, Time, Interest, Volatility, Dividend))
 End Function
 Function CallDelta(UnderlyingPrice, ExercisePrice, Time, Interest, Volatility, Dividend)
-CallDelta = Application.NormSDist(dOne(UnderlyingPrice, ExercisePrice, Time, Interest, Volatility, Dividend))
+CallDelta = Exp(-Dividend * Time) * Application.NormSDist(dOne(UnderlyingPrice, ExercisePrice, Time, Interest, Volatility, Dividend)) ' FIX 2026-09-22: was missing e^(-qT)
 'CallDelta = Application.NormSDist((Log(UnderlyingPrice / ExercisePrice) + (Interest - Dividend) * Time) / (Volatility * Sqr(Time)) + 0.5 * Volatility * Sqr(Time))
 End Function
 Function PutDelta(UnderlyingPrice, ExercisePrice, Time, Interest, Volatility, Dividend)
-PutDelta = Application.NormSDist(dOne(UnderlyingPrice, ExercisePrice, Time, Interest, Volatility, Dividend)) - 1
+PutDelta = Exp(-Dividend * Time) * (Application.NormSDist(dOne(UnderlyingPrice, ExercisePrice, Time, Interest, Volatility, Dividend)) - 1) ' FIX 2026-09-22: was missing e^(-qT)
 'PutDelta = Application.NormSDist((Log(UnderlyingPrice / ExercisePrice) + (Interest - Dividend) * Time) / (Volatility * Sqr(Time)) + 0.5 * Volatility * Sqr(Time)) - 1
 End Function
 Function CallTheta(UnderlyingPrice, ExercisePrice, Time, Interest, Volatility, Dividend)
-CT = -(UnderlyingPrice * Volatility * NdOne(UnderlyingPrice, ExercisePrice, Time, Interest, Volatility, Dividend)) / (2 * Sqr(Time)) - Interest * ExercisePrice * Exp(-Interest * (Time)) * NdTwo(UnderlyingPrice, ExercisePrice, Time, Interest, Volatility, Dividend)
+CT = -(UnderlyingPrice * Volatility * Exp(-Dividend * Time) * NdOne(UnderlyingPrice, ExercisePrice, Time, Interest, Volatility, Dividend)) / (2 * Sqr(Time)) - Interest * ExercisePrice * Exp(-Interest * (Time)) * NdTwo(UnderlyingPrice, ExercisePrice, Time, Interest, Volatility, Dividend) + Dividend * UnderlyingPrice * Exp(-Dividend * Time) * Application.NormSDist(dOne(UnderlyingPrice, ExercisePrice, Time, Interest, Volatility, Dividend)) ' FIX 2026-09-22: e^(-qT) on 1st term + dividend carry term
 CallTheta = CT / 252
 End Function
 Function OptionGamma(UnderlyingPrice, ExercisePrice, Time, Interest, Volatility, Dividend)
-OptionGamma = NdOne(UnderlyingPrice, ExercisePrice, Time, Interest, Volatility, Dividend) / (UnderlyingPrice * (Volatility * Sqr(Time)))
+OptionGamma = Exp(-Dividend * Time) * NdOne(UnderlyingPrice, ExercisePrice, Time, Interest, Volatility, Dividend) / (UnderlyingPrice * (Volatility * Sqr(Time))) ' FIX 2026-09-22: was missing e^(-qT)
 End Function
 Function Vega(UnderlyingPrice, ExercisePrice, Time, Interest, Volatility, Dividend)
-Vega = 0.01 * UnderlyingPrice * Sqr(Time) * NdOne(UnderlyingPrice, ExercisePrice, Time, Interest, Volatility, Dividend)
+Vega = 0.01 * Exp(-Dividend * Time) * UnderlyingPrice * Sqr(Time) * NdOne(UnderlyingPrice, ExercisePrice, Time, Interest, Volatility, Dividend) ' FIX 2026-09-22: was missing e^(-qT)
 End Function
 Function PutTheta(UnderlyingPrice, ExercisePrice, Time, Interest, Volatility, Dividend)
-PT = -(UnderlyingPrice * Volatility * NdOne(UnderlyingPrice, ExercisePrice, Time, Interest, Volatility, Dividend)) / (2 * Sqr(Time)) + Interest * ExercisePrice * Exp(-Interest * (Time)) * (1 - NdTwo(UnderlyingPrice, ExercisePrice, Time, Interest, Volatility, Dividend))
+PT = -(UnderlyingPrice * Volatility * Exp(-Dividend * Time) * NdOne(UnderlyingPrice, ExercisePrice, Time, Interest, Volatility, Dividend)) / (2 * Sqr(Time)) + Interest * ExercisePrice * Exp(-Interest * (Time)) * (1 - NdTwo(UnderlyingPrice, ExercisePrice, Time, Interest, Volatility, Dividend)) - Dividend * UnderlyingPrice * Exp(-Dividend * Time) * (1 - Application.NormSDist(dOne(UnderlyingPrice, ExercisePrice, Time, Interest, Volatility, Dividend))) ' FIX 2026-09-22: e^(-qT) on 1st term + dividend carry term
 PutTheta = PT / 252
 End Function
 Function CallRho(UnderlyingPrice, ExercisePrice, Time, Interest, Volatility, Dividend)
@@ -117,7 +117,7 @@ OTW_BlackScholes = Application.NormSDist(dOne(UnderlyingPrice, ExercisePrice, Ti
 Case Is = "g"
 OTW_BlackScholes = NdOne(UnderlyingPrice, ExercisePrice, Time, Interest, Volatility, Dividend) / (UnderlyingPrice * (Volatility * Sqr(Time)))
 Case Is = "t"
-CT = -(UnderlyingPrice * Volatility * NdOne(UnderlyingPrice, ExercisePrice, Time, Interest, Volatility, Dividend)) / (2 * Sqr(Time)) - Interest * ExercisePrice * Exp(-Interest * (Time)) * NdTwo(UnderlyingPrice, ExercisePrice, Time, Interest, Volatility, Dividend)
+CT = -(UnderlyingPrice * Volatility * Exp(-Dividend * Time) * NdOne(UnderlyingPrice, ExercisePrice, Time, Interest, Volatility, Dividend)) / (2 * Sqr(Time)) - Interest * ExercisePrice * Exp(-Interest * (Time)) * NdTwo(UnderlyingPrice, ExercisePrice, Time, Interest, Volatility, Dividend) + Dividend * UnderlyingPrice * Exp(-Dividend * Time) * Application.NormSDist(dOne(UnderlyingPrice, ExercisePrice, Time, Interest, Volatility, Dividend)) ' FIX 2026-09-22: e^(-qT) on 1st term + dividend carry term
 OTW_BlackScholes = CT / 252
 Case Is = "v"
 OTW_BlackScholes = 0.01 * UnderlyingPrice * Sqr(Time) * NdOne(UnderlyingPrice, ExercisePrice, Time, Interest, Volatility, Dividend)
@@ -142,7 +142,7 @@ OTW_BlackScholes = Application.NormSDist(dOne(UnderlyingPrice, ExercisePrice, Ti
 Case Is = "g"
 OTW_BlackScholes = NdOne(UnderlyingPrice, ExercisePrice, Time, Interest, Volatility, Dividend) / (UnderlyingPrice * (Volatility * Sqr(Time)))
 Case Is = "t"
-PT = -(UnderlyingPrice * Volatility * NdOne(UnderlyingPrice, ExercisePrice, Time, Interest, Volatility, Dividend)) / (2 * Sqr(Time)) + Interest * ExercisePrice * Exp(-Interest * (Time)) * (1 - NdTwo(UnderlyingPrice, ExercisePrice, Time, Interest, Volatility, Dividend))
+PT = -(UnderlyingPrice * Volatility * Exp(-Dividend * Time) * NdOne(UnderlyingPrice, ExercisePrice, Time, Interest, Volatility, Dividend)) / (2 * Sqr(Time)) + Interest * ExercisePrice * Exp(-Interest * (Time)) * (1 - NdTwo(UnderlyingPrice, ExercisePrice, Time, Interest, Volatility, Dividend)) - Dividend * UnderlyingPrice * Exp(-Dividend * Time) * (1 - Application.NormSDist(dOne(UnderlyingPrice, ExercisePrice, Time, Interest, Volatility, Dividend))) ' FIX 2026-09-22: e^(-qT) on 1st term + dividend carry term
 OTW_BlackScholes = PT / 252
 Case Is = "v"
 OTW_BlackScholes = 0.01 * UnderlyingPrice * Sqr(Time) * NdOne(UnderlyingPrice, ExercisePrice, Time, Interest, Volatility, Dividend)

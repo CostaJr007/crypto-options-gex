@@ -1,6 +1,6 @@
 """Crypto Options Analytics & Gamma Exposure (GEX) Engine.
 
-Quantitative analytics for cryptocurrency options (BTC & ETH), real-time dealer
+Quantitative analytics for cryptocurrency options (BTC & ETH), dealer
 Gamma Exposure (GEX), Call/Put Walls, Zero Gamma Flip, and Volatility Skew.
 """
 
