@@ -2,7 +2,7 @@
 
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.100+-009688.svg)](https://fastapi.tiangolo.com)
-[![Tests](https://img.shields.io/badge/tests-7%20passed-brightgreen.svg)]()
+[![Tests](https://img.shields.io/badge/tests-11%20passed-brightgreen.svg)]()
 [![Market: Crypto](https://img.shields.io/badge/market-BTC%20%7C%20ETH%20%7C%20Deribit-orange.svg)]()
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
@@ -12,8 +12,8 @@ This repository modernizes legacy crypto options workbooks (see `excel_legacy/RE
 - **Net Dealer Gamma Exposure (GEX)**: Track where market makers must hedge spot to remain delta-neutral.
 - **Key Market Levels**: Automatic detection of the **Call Wall** (Major Resistance), **Put Wall** (Major Support), and **Zero Gamma Flip Level** (Regime shift).
 - **24/7 Continuous Pricing**: Black-Scholes-Merton engine adapted for nonstop cryptocurrency trading (365 calendar days).
-- **Implied Volatility Smile & 25-Delta Risk Reversal Skew**: Real-time evaluation of market sentiment, crash risk, and tail-risk pricing.
-- **FastAPI REST Microservice & CLI Tooling**: Cloud-native deployment ready for trading desks and automated execution bots.
+- **Implied Volatility Smile & 25-Delta Risk Reversal Skew**: Continuous evaluation of market sentiment, crash risk, and tail-risk pricing.
+- **FastAPI REST Service & CLI Tooling**: Single-container deployment with Swagger docs and Typer CLI.
 
 ---
 
@@ -37,7 +37,8 @@ $$\text{Net GEX} = \sum_i \left( \text{Call GEX}_i + \text{Put GEX}_i \right)$$
 ### 2. Analytical Greeks (Continuous 24/7 Basis)
 Given the continuous operation of crypto markets, Theta and time parameters are parameterized on a 365-day continuous basis:
 
-$$\Theta_{\text{daily}} = -\frac{S e^{-qT}\phi(d_1)\sigma}{2\sqrt{T} \times 365} - \frac{r K e^{-rT}\mathcal{N}(d_2)}{365}$$
+$$\Theta_{\text{daily}} = \frac{1}{365}\left[-\frac{S e^{-qT}\phi(d_1)\sigma}{2\sqrt{T}} - r K e^{-rT}\mathcal{N}(d_2) + q S e^{-qT}\mathcal{N}(d_1)\right]$$
+*(Call theta shown; put theta mirrors with $\mathcal{N}(-d_1)$, $\mathcal{N}(-d_2)$ and a $-qSe^{-qT}\mathcal{N}(-d_1)$ carry term.)*
 
 ### 3. Volatility Skew & 25-Delta Risk Reversal
 Quantifies downside protection demand vs upside speculation:
@@ -96,7 +97,7 @@ Audited source code extracted from the legacy crypto options workbook (see `exce
 - `OptionGreeks_BlackScholes.bas`: Full analytical Greeks implementation (Peter McPhee base).
 - `ProgressBar_Win32API.frm`: Borderless progress bar using 64-bit Windows API (`User32.dll`).
 - `ExportarGrafico_RR.bas`: Automated Risk-Reversal chart exporter.
-- `Servidor1_RTD_Selector.frm`: Platform RTD selector (Workbook Password: `12345`).
+- `Servidor1_RTD_Selector.frm`: Platform RTD selector (legacy sheet protection was trivial and has been removed).
 
 ---
 
