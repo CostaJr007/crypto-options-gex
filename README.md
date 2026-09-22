@@ -8,7 +8,7 @@
 
 **Quantitative Crypto Options Analytics, Market Maker Gamma Exposure (GEX), and Volatility Surface Engine for BTC & ETH.**
 
-This repository modernizes legacy crypto options workbooks (`excel_legacy/crypto_options_gex_legacy.xlsm`) into a research-grade Python engine for digital asset derivatives:
+This repository modernizes legacy crypto options workbooks (see `excel_legacy/README.md` for provenance) into a research-grade Python engine for digital asset derivatives:
 - **Net Dealer Gamma Exposure (GEX)**: Track where market makers must hedge spot to remain delta-neutral.
 - **Key Market Levels**: Automatic detection of the **Call Wall** (Major Resistance), **Put Wall** (Major Support), and **Zero Gamma Flip Level** (Regime shift).
 - **24/7 Continuous Pricing**: Black-Scholes-Merton engine adapted for nonstop cryptocurrency trading (365 calendar days).
@@ -92,7 +92,7 @@ Interactive API Swagger documentation is available at `http://localhost:8000/doc
 ---
 
 ## 🗄️ Legacy VBA Archive (`vba_legacy/`)
-Audited source code decompiled from the original `PLANILHA OBT CRIPTO.xlsm` workbook:
+Audited source code extracted from the legacy crypto options workbook (see `excel_legacy/README.md` for provenance):
 - `OptionGreeks_BlackScholes.bas`: Full analytical Greeks implementation (Peter McPhee base).
 - `ProgressBar_Win32API.frm`: Borderless progress bar using 64-bit Windows API (`User32.dll`).
 - `ExportarGrafico_RR.bas`: Automated Risk-Reversal chart exporter.
